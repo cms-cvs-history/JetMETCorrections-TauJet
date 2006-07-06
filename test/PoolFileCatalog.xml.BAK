@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Edited By POOL -->
+<!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">
+<POOLFILECATALOG>
+  <File ID="603C8395-020C-DB11-BBE0-003048836695">
+    <physical>
+      <pfn filetype="ROOT_All" name="file:CorrectedJetsiParton_HB_HO.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+</POOLFILECATALOG>

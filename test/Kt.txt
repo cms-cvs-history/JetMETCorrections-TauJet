@@ -1,0 +1,31 @@
+
+process PROD  = {
+
+	source = PoolSource { 
+		untracked string fileName = 'CaloTowers_HB_HO.root'
+		untracked int32 maxEvents = -1
+	}
+
+	module out = PoolOutputModule {	
+		untracked string fileName = 'KtJets.root'
+	}
+	
+        block kt_jet_parameters = {
+		int32 ktAngle = 2
+		int32 ktRecom = 1
+		double ktECut = 10.0
+		double ktRParam = 1.0
+        }
+
+	module angle2recomlecut0rl = KtJetProducer {
+	        using kt_jet_parameters
+	}
+	
+        module mcjet = MCJet {
+	        using kt_jet_parameters
+	        untracked string tagName = 'Kt_R1.0_EScheme_TowerEt0.5_E0.8_Jets873_2x1033PU_qcd'
+        }
+
+
+	path p = { angle2recomlecut0rl, mcjet, out }
+}
