@@ -8,7 +8,7 @@
 # 
 
    es_source TauJetCorrectorIcone4 = TauJetCorrectionService {
-            string tagName = 'IterativeCone0.4_standardCMSSW_120_tau"
+            string tagName = 'IterativeCone0.4_standardCMSSW_120_tau'
 	    int32 TauTriggerType = 1
             string label = 'TauJetCorrectorIcone4' 
     }
