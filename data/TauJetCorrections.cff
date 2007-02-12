@@ -1,21 +1,29 @@
 # File: JetCorrections.cff
 # Author: O. Kodolova
-# Date: 1/24/07
+# Modified for CMSSW120 by: F. Blekman
+# Date: 2/12/07
+#
 #
 # TauJet corrections for the icone4 jets. (ORCA derived)
 # 
 
    es_source TauJetCorrectorIcone4 = TauJetCorrectionService {
-            string tagName = 'IterativeCone0.4_EtScheme_TowerEt0.5_E0.8_Jets871_2x1033PU_tau'
+            string tagName = 'IterativeCone0.4_standardCMSSW_120_tau"
 	    int32 TauTriggerType = 1
-            string label = 'TauJetCorrectorIcone4' 
+            string label = 'TauJetCorrectorIcone4cmssw' 
     }
 
 
 	module TauJetCorJetIcone4 = JetCorrectionProducer {
-                InputTag src   = iterativeCone5CaloJets
+                InputTag src   = iterativeCone4CaloJets
                 vstring correctors = {"TauJetCorrectorIcone4"}
                 untracked string alias = "TauJetCorJetIcone4"
         }
 
         sequence TauJetCorrections = {  TauJetCorJetIcone4 }
+
+
+
+
+
+
