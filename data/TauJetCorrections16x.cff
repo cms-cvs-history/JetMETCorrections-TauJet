@@ -1,0 +1,20 @@
+# File: JetCorrections16x.cff
+# Author: S. Wakefield
+#
+# TauJet corrections for the icone5 jets calculated with CMSSW_1_6_7
+# 
+
+   es_source TauJetCorrectorIcone5 = TauJetCorrectionService {
+            string tagName = 'IterativeCone0.5_standardCMSSW_16x_tau'
+	    int32 TauTriggerType = 20
+            string label = 'TauJetCorrectorIcone5' 
+    }
+
+
+	module TauJetCorJetIcone5 = JetCorrectionProducer {
+                InputTag src   = coneIsolationTauJetTags
+                vstring correctors = {"TauJetCorrectorIcone5"}
+                untracked string alias = "TauJetCorJetIcone5"
+        }
+
+    sequence TauJetCorrections5 = {  TauJetCorJetIcone5 }
