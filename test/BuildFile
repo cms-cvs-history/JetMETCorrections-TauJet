@@ -1,0 +1,10 @@
+<use name=Foundation/PluginManager>
+<use name=DataFormats/TauReco>
+<use name=RecoTauTag/TauTagTools>
+
+<flags EDM_PLUGIN=1>
+
+<library file=HardTauCorrectorTest.cpp name=HardTauCorrectorTest>
+  <use name=FWCore/Framework>
+  <use name=JetMETCorrections/TauJet>
+</library>
