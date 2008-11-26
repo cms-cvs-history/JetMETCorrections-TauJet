@@ -1,4 +1,3 @@
-<use name=Foundation/PluginManager>
 <use name=DataFormats/TauReco>
 <use name=RecoTauTag/TauTagTools>
 
