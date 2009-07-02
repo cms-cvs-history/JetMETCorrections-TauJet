@@ -5,7 +5,7 @@
 #include <iostream>
 using namespace std;
 
-#include "JetMETCorrections/TauJet/interface/HardTauCorrector.h"
+#include "JetMETCorrections/TauJet/interface/TCTauCorrector.h"
 #include "JetMETCorrections/TauJet/interface/TauJetCorrector.h"
 
 #include "DataFormats/TauReco/interface/CaloTau.h"
@@ -23,10 +23,10 @@ using namespace std;
 
 #include "JetMETCorrections/TauJet/test/visibleTaus.h"
 
-class HardTauCorrectorTest : public edm::EDAnalyzer {
+class TCTauCorrectorTest : public edm::EDAnalyzer {
   public:
-  	explicit HardTauCorrectorTest(const edm::ParameterSet&);
-  	~HardTauCorrectorTest();
+  	explicit TCTauCorrectorTest(const edm::ParameterSet&);
+  	~TCTauCorrectorTest();
 
   	virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   	virtual void beginJob(const edm::EventSetup& );
@@ -34,25 +34,25 @@ class HardTauCorrectorTest : public edm::EDAnalyzer {
   private:
 	bool prongSelection(short int);
 
-	HardTauCorrector* hardTauCorrector;
+	TCTauCorrector* tcTauCorrector;
 	TauJetCorrector* tauJetCorrector;
 
 	TH1F* h_CaloTau_dEt;
 	TH1F* h_CaloTau_caloTauCorrected_dEt;
-	TH1F* h_CaloTau_hardTauCorrected_dEt;
+	TH1F* h_CaloTau_TCTauCorrected_dEt;
 	TH1F* h_CaloTau_doubleCorrected_dEt;
 
 	int all,
 	    caloTauIn01Counter,
 	    caloTauTauJetCorrectedIn01Counter,
-	    hardTauIn01Counter,
+	    tcTauIn01Counter,
 	    doubleCorrectedIn01Counter;
 	int prongs;
 };
 
-HardTauCorrectorTest::HardTauCorrectorTest(const edm::ParameterSet& iConfig){
-	// this algo (HardTauAlgorithm)
-	hardTauCorrector = new HardTauCorrector(iConfig);
+TCTauCorrectorTest::TCTauCorrectorTest(const edm::ParameterSet& iConfig){
+	// this algo (TCTauAlgorithm)
+	tcTauCorrector = new TCTauCorrector(iConfig);
 
 	// TauJet correction from JetMETCorrections/TauJet
 	tauJetCorrector = new TauJetCorrector(iConfig);
@@ -60,7 +60,7 @@ HardTauCorrectorTest::HardTauCorrectorTest(const edm::ParameterSet& iConfig){
 	all                               = 0;
 	caloTauIn01Counter	          = 0;
 	caloTauTauJetCorrectedIn01Counter = 0;
-	hardTauIn01Counter                = 0;
+	tcTauIn01Counter                = 0;
 	doubleCorrectedIn01Counter        = 0;
 
 	string prongSele = iConfig.getParameter<string>("ProngSelection");
@@ -70,36 +70,36 @@ HardTauCorrectorTest::HardTauCorrectorTest(const edm::ParameterSet& iConfig){
 
 }
 
-HardTauCorrectorTest::~HardTauCorrectorTest(){
-	double efficiency = hardTauCorrector->efficiency();
+TCTauCorrectorTest::~TCTauCorrectorTest(){
+	double efficiency = tcTauCorrector->efficiency();
 	cout << endl << endl;
 	cout << "Algorithm efficiency " << efficiency << endl;
 
 	cout << endl;
         cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau                   " << double(caloTauIn01Counter)/all << endl;
         cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJetCorrection  " << double(caloTauTauJetCorrectedIn01Counter)/all << endl;
-	cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+HardTauCorrection " << double(hardTauIn01Counter)/all << endl;
-        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJet+HardTau    " << double(doubleCorrectedIn01Counter)/all << endl;
+	cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TCTauCorrection " << double(tcTauIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJet+TCTau    " << double(doubleCorrectedIn01Counter)/all << endl;
         cout << endl;
 
-	delete hardTauCorrector;
+	delete tcTauCorrector;
 }
 
-void HardTauCorrectorTest::beginJob(const edm::EventSetup& iSetup){
+void TCTauCorrectorTest::beginJob(const edm::EventSetup& iSetup){
 	h_CaloTau_dEt                  = new TH1F("h_CaloTau_dEt","",100,-1.0,1.0);
 	h_CaloTau_caloTauCorrected_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_caloTauCorrected_dEt");
-	h_CaloTau_hardTauCorrected_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_hardTauCorrected_dEt");
+	h_CaloTau_TCTauCorrected_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_TCTauCorrected_dEt");
 	h_CaloTau_doubleCorrected_dEt  = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_doubleCorrected_dEt");
 }
 
-void HardTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
         Handle<CaloTauCollection> theCaloTauHandle;
         try{
           iEvent.getByLabel("caloRecoTauProducer",theCaloTauHandle);
         }catch(...) {;}
 
-	hardTauCorrector->eventSetup(iEvent,iSetup);
+	tcTauCorrector->eventSetup(iEvent,iSetup);
 
         if(theCaloTauHandle.isValid()){
 
@@ -144,8 +144,8 @@ void HardTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSet
  
 
 
-		double hardTauCorrection = hardTauCorrector->correction(theCaloTau);
-		cout << "CaloTau Et = " << iTau->pt() << ", corrected Et = " << iTau->pt()*hardTauCorrection << endl;
+		double tcTauCorrection = tcTauCorrector->correction(theCaloTau);
+		cout << "CaloTau Et = " << iTau->pt() << ", corrected Et = " << iTau->pt()*tcTauCorrection << endl;
 
 		double MC_Et = 0;
 		vector<TLorentzVector>::const_iterator i;
@@ -155,11 +155,11 @@ void HardTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSet
                 	if(DR < 0.5) MC_Et = i->Pt();
         	}
 
-	        // Using TauJet Jet energy correction AND HardTau correction
+	        // Using TauJet Jet energy correction AND TCTau correction
 	        double tauJetCorrection = tauJetCorrector->correction(iTau->p4());
 		theCaloTau.setP4(iTau->p4()*tauJetCorrection);
 
-		double doubleCorrection = hardTauCorrector->correction(theCaloTau);
+		double doubleCorrection = tcTauCorrector->correction(theCaloTau);
                 cout << "CaloTau+TauJet Et = " << theCaloTau.pt() << ", doublecorrected Et = " << theCaloTau.pt()*doubleCorrection << endl;
 
 		if(MC_Et > 0){
@@ -169,8 +169,8 @@ void HardTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSet
 			double caloTau_TauJetCorrected_dEt = (iTau->pt()*tauJetCorrection - MC_Et)/MC_Et;
 			h_CaloTau_caloTauCorrected_dEt->Fill(caloTau_TauJetCorrected_dEt);
 
-			double caloTau_HardTauCorrected_dEt = (iTau->pt()*hardTauCorrection - MC_Et)/MC_Et;
-			h_CaloTau_hardTauCorrected_dEt->Fill(caloTau_HardTauCorrected_dEt);
+			double caloTau_TCTauCorrected_dEt = (iTau->pt()*tcTauCorrection - MC_Et)/MC_Et;
+			h_CaloTau_TCTauCorrected_dEt->Fill(caloTau_TCTauCorrected_dEt);
 
 			double caloTau_DoubleCorrected_dEt = (theCaloTau.pt()*doubleCorrection - MC_Et)/MC_Et;
 			h_CaloTau_doubleCorrected_dEt->Fill(caloTau_DoubleCorrected_dEt);
@@ -178,14 +178,14 @@ void HardTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSet
 			all++;
 			if(fabs(caloTau_dEt) < 0.1) caloTauIn01Counter++;
 			if(fabs(caloTau_TauJetCorrected_dEt) < 0.1) caloTauTauJetCorrectedIn01Counter++;
-			if(fabs(caloTau_HardTauCorrected_dEt) < 0.1) hardTauIn01Counter++;
+			if(fabs(caloTau_TCTauCorrected_dEt) < 0.1) tcTauIn01Counter++;
 			if(fabs(caloTau_DoubleCorrected_dEt) < 0.1) doubleCorrectedIn01Counter++;
 		}
           }
         }
 }
 
-void HardTauCorrectorTest::endJob(){
+void TCTauCorrectorTest::endJob(){
 	TCanvas* resolution = new TCanvas("resolution","",500,500);
 	resolution->SetFillColor(0);
 
@@ -198,9 +198,9 @@ void HardTauCorrectorTest::endJob(){
         h_CaloTau_doubleCorrected_dEt->GetYaxis()->SetTitle("Arbitrary units");
         h_CaloTau_doubleCorrected_dEt->DrawClone();
 
-        h_CaloTau_hardTauCorrected_dEt->SetFillColor(5);
-        h_CaloTau_hardTauCorrected_dEt->SetLineWidth(3);
-        h_CaloTau_hardTauCorrected_dEt->DrawClone("same");
+        h_CaloTau_TCTauCorrected_dEt->SetFillColor(5);
+        h_CaloTau_TCTauCorrected_dEt->SetLineWidth(3);
+        h_CaloTau_TCTauCorrected_dEt->DrawClone("same");
 
         h_CaloTau_doubleCorrected_dEt->SetFillColor(0);
         h_CaloTau_doubleCorrected_dEt->SetLineWidth(1);
@@ -223,10 +223,10 @@ void HardTauCorrectorTest::endJob(){
         TLatex* text1_2 = new TLatex(-0.8,0.7*text_y1,"reco::CaloTau+TauJet");
         text1_2->SetTextSize(0.03);
         text1_2->Draw();
-        TLatex* text1_3 = new TLatex(-0.8,0.6*text_y1,"HardTau");
+        TLatex* text1_3 = new TLatex(-0.8,0.6*text_y1,"TCTau");
         text1_3->SetTextSize(0.03);
         text1_3->Draw();
-        TLatex* text1_4 = new TLatex(-0.8,0.5*text_y1,"HardTau+TauJet");
+        TLatex* text1_4 = new TLatex(-0.8,0.5*text_y1,"TCTau+TauJet");
         text1_4->SetTextSize(0.03);
         text1_4->Draw();
 
@@ -259,10 +259,10 @@ void HardTauCorrectorTest::endJob(){
 	resolution->Print("resolution.C");
 }
 
-bool HardTauCorrectorTest::prongSelection(short int nTracks){
+bool TCTauCorrectorTest::prongSelection(short int nTracks){
         if( nTracks != 1 && nTracks != 3) return false;
         if( (prongs == 1 && nTracks!= 1) || (prongs == 3 && nTracks!= 3)) return false;
 	return true;
 }
 
-DEFINE_FWK_MODULE(HardTauCorrectorTest);
+DEFINE_FWK_MODULE(TCTauCorrectorTest);

@@ -9,7 +9,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	'/store/relval/CMSSW_2_1_9/RelValHiggsChargedTausM200/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/STARTUP_V7_Tauola_v1/0002/00D4B0FC-608E-DD11-BCBA-000423D6A6F4.root'
+	'file:/tmp/slehti/A161_RECO.root'
     )
 )
 
@@ -23,8 +23,8 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
-process.hardTauCorrectorTest = cms.EDAnalyzer("HardTauCorrectorTest",
-	## Optional input for the HardTauAlgorithm
+process.tcTauCorrectorTest = cms.EDAnalyzer("TCTauCorrectorTest",
+	## Optional input for the TCTauAlgorithm
         ## uncomment here any line which needs changing.
 	# EtCaloOverTrackMin 	= cms.untracked.double(-0.9),
 	# EtCaloOverTrackMax	= cms.untracked.double(0.0),
@@ -55,5 +55,5 @@ process.hardTauCorrectorTest = cms.EDAnalyzer("HardTauCorrectorTest",
 )
 
 process.runEDAna = cms.Path(
-	process.hardTauCorrectorTest
+	process.tcTauCorrectorTest
 )
