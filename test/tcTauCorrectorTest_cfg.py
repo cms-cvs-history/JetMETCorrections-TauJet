@@ -15,8 +15,8 @@ process.source = cms.Source("PoolSource",
 
 process.load("FWCore/MessageService/MessageLogger_cfi")
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V9::All'
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag = 'IDEAL_V1::All'
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
