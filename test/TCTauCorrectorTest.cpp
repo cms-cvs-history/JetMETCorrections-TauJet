@@ -60,7 +60,7 @@ TCTauCorrectorTest::TCTauCorrectorTest(const edm::ParameterSet& iConfig){
 	all                               = 0;
 	caloTauIn01Counter	          = 0;
 	caloTauTauJetCorrectedIn01Counter = 0;
-	tcTauIn01Counter                = 0;
+	tcTauIn01Counter                  = 0;
 	doubleCorrectedIn01Counter        = 0;
 
 	string prongSele = iConfig.getParameter<string>("ProngSelection");
@@ -74,6 +74,7 @@ TCTauCorrectorTest::~TCTauCorrectorTest(){
 	double efficiency = tcTauCorrector->efficiency();
 	cout << endl << endl;
 	cout << "Algorithm efficiency " << efficiency << endl;
+	cout << "Number of taus passing selection " << tcTauCorrector->statistics() << endl;
 
 	cout << endl;
         cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau                   " << double(caloTauIn01Counter)/all << endl;
@@ -108,8 +109,9 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
           int nCaloTaus = caloTaus.size();
           cout << "calotau collection size " << nCaloTaus << endl;
 
-	  vector<TLorentzVector> mcTaus = ::visibleTaus(iEvent,37);
-
+	  vector<TLorentzVector> mcTaus = ::visibleTaus(iEvent,0);//37);
+////	  if(mcTaus.size() == 0) mcTaus = ::visibleTaus(iEvent,23);
+cout << "mcTaus size() " << mcTaus.size() << endl;
           double matchingConeSize         = 0.1,
                  signalConeSize           = 0.07,
                  isolationConeSize        = 0.4,

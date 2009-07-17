@@ -17,7 +17,7 @@ vector<TLorentzVector> visibleTaus(const edm::Event& iEvent,int motherId){
 
         Handle<HepMCProduct> mcEventHandle;
         try{
-          iEvent.getByLabel("source",mcEventHandle);
+          iEvent.getByLabel("generator",mcEventHandle);
         }catch(...) {;}
 
         if(mcEventHandle.isValid()){
@@ -40,7 +40,7 @@ vector<TLorentzVector> visibleTaus(const edm::Event& iEvent,int motherId){
                                 }
                      }
 
-                     if(!motherSelection && motherId != 0 ) continue;
+////                     if(!motherSelection && motherId != 0 ) continue;
 
                      FourVector p4 = (*i)->momentum();
                      TLorentzVector visibleTau(p4.px(),p4.py(),p4.pz(),p4.e());
