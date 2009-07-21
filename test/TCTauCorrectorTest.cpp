@@ -71,16 +71,17 @@ TCTauCorrectorTest::TCTauCorrectorTest(const edm::ParameterSet& iConfig){
 }
 
 TCTauCorrectorTest::~TCTauCorrectorTest(){
-	double efficiency = tcTauCorrector->efficiency();
+
 	cout << endl << endl;
-	cout << "Algorithm efficiency " << efficiency << endl;
+	cout << "All tau candidates               " << tcTauCorrector->allTauCandidates() << endl;
 	cout << "Number of taus passing selection " << tcTauCorrector->statistics() << endl;
+	cout << "Algorithm efficiency             " << tcTauCorrector->efficiency() << endl;
 
 	cout << endl;
-        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau                   " << double(caloTauIn01Counter)/all << endl;
-        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJetCorrection  " << double(caloTauTauJetCorrectedIn01Counter)/all << endl;
-	cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TCTauCorrection " << double(tcTauIn01Counter)/all << endl;
-        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJet+TCTau    " << double(doubleCorrectedIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau                  " << double(caloTauIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJetCorrection " << double(caloTauTauJetCorrectedIn01Counter)/all << endl;
+	cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TCTauCorrection  " << double(tcTauIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJet+TCTau     " << double(doubleCorrectedIn01Counter)/all << endl;
         cout << endl;
 
 	delete tcTauCorrector;
