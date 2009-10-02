@@ -108,7 +108,7 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 
           const CaloTauCollection & caloTaus = *(theCaloTauHandle.product());
 
-          int nCaloTaus = caloTaus.size();
+          //int nCaloTaus = caloTaus.size();
           //cout << "calotau collection size " << nCaloTaus << endl;
 
 	  vector<TLorentzVector> mcTaus = ::visibleTaus(iEvent,0);//37);
