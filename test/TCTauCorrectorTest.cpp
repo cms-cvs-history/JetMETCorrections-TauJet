@@ -16,6 +16,7 @@ using namespace std;
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TFile.h"
 #include "TCanvas.h"
 #include "TH1F.h"
 #include "TLatex.h"
@@ -108,11 +109,11 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
           const CaloTauCollection & caloTaus = *(theCaloTauHandle.product());
 
           int nCaloTaus = caloTaus.size();
-          cout << "calotau collection size " << nCaloTaus << endl;
+          //cout << "calotau collection size " << nCaloTaus << endl;
 
 	  vector<TLorentzVector> mcTaus = ::visibleTaus(iEvent,0);//37);
 ////	  if(mcTaus.size() == 0) mcTaus = ::visibleTaus(iEvent,23);
-cout << "mcTaus size() " << mcTaus.size() << endl;
+//cout << "mcTaus size() " << mcTaus.size() << endl;
           double matchingConeSize         = 0.1,
                  signalConeSize           = 0.07,
                  isolationConeSize        = 0.4,
@@ -189,6 +190,17 @@ cout << "mcTaus size() " << mcTaus.size() << endl;
 }
 
 void TCTauCorrectorTest::endJob(){
+	TFile* oFILE = new TFile("histograms.root","RECREATE");
+	
+	oFILE->cd();
+
+	h_CaloTau_doubleCorrected_dEt->Write();
+	h_CaloTau_TCTauCorrected_dEt->Write();
+	h_CaloTau_caloTauCorrected_dEt->Write();
+	h_CaloTau_dEt->Write();
+
+	oFILE->Close();
+/*
 	TCanvas* resolution = new TCanvas("resolution","",500,500);
 	resolution->SetFillColor(0);
 
@@ -260,6 +272,7 @@ void TCTauCorrectorTest::endJob(){
 
 
 	resolution->Print("resolution.C");
+*/
 }
 
 bool TCTauCorrectorTest::prongSelection(short int nTracks){
