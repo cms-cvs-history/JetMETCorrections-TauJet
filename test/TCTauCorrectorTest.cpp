@@ -11,6 +11,9 @@ using namespace std;
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
 
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
+
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -42,12 +45,15 @@ class TCTauCorrectorTest : public edm::EDAnalyzer {
 	TH1F* h_CaloTau_caloTauCorrected_dEt;
 	TH1F* h_CaloTau_TCTauCorrected_dEt;
 	TH1F* h_CaloTau_doubleCorrected_dEt;
+	TH1F* h_PFTau_dEt;
 
 	int all,
 	    caloTauIn01Counter,
 	    caloTauTauJetCorrectedIn01Counter,
 	    tcTauIn01Counter,
-	    doubleCorrectedIn01Counter;
+	    doubleCorrectedIn01Counter,
+	    pfAll,
+	    pfTauIn01Counter;
 	int prongs;
 };
 
@@ -63,6 +69,8 @@ TCTauCorrectorTest::TCTauCorrectorTest(const edm::ParameterSet& iConfig){
 	caloTauTauJetCorrectedIn01Counter = 0;
 	tcTauIn01Counter                  = 0;
 	doubleCorrectedIn01Counter        = 0;
+	pfAll				  = 0;
+	pfTauIn01Counter	          = 0;
 
 	string prongSele = iConfig.getParameter<string>("ProngSelection");
         prongs = -1;
@@ -83,6 +91,7 @@ TCTauCorrectorTest::~TCTauCorrectorTest(){
         cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJetCorrection " << double(caloTauTauJetCorrectedIn01Counter)/all << endl;
 	cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TCTauCorrection  " << double(tcTauIn01Counter)/all << endl;
         cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJet+TCTau     " << double(doubleCorrectedIn01Counter)/all << endl;
+	cout << "Fraction of jets in abs(dEt) < 0.1, reco::PFTau                    " << double(pfTauIn01Counter)/pfAll << endl;
         cout << endl;
 
 	delete tcTauCorrector;
@@ -91,11 +100,24 @@ TCTauCorrectorTest::~TCTauCorrectorTest(){
 void TCTauCorrectorTest::beginJob(const edm::EventSetup& iSetup){
 	h_CaloTau_dEt                  = new TH1F("h_CaloTau_dEt","",100,-1.0,1.0);
 	h_CaloTau_caloTauCorrected_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_caloTauCorrected_dEt");
-	h_CaloTau_TCTauCorrected_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_TCTauCorrected_dEt");
+	h_CaloTau_TCTauCorrected_dEt   = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_TCTauCorrected_dEt");
 	h_CaloTau_doubleCorrected_dEt  = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_doubleCorrected_dEt");
+	h_PFTau_dEt                    = (TH1F*)h_CaloTau_dEt->Clone("h_PFTau_dEt");
 }
 
 void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+        double matchingConeSize         = 0.1,
+               signalConeSize           = 0.07,
+               isolationConeSize        = 0.4,
+               ptLeadingTrackMin        = 20,
+               ptOtherTracksMin         = 1;
+        string metric = "DR"; // can be DR,angle,area
+        unsigned int isolationAnnulus_Tracksmaxn = 0;
+
+	vector<TLorentzVector> mcTaus = ::visibleTaus(iEvent,0);//37);
+
+// CaloTaus
 
         Handle<CaloTauCollection> theCaloTauHandle;
         try{
@@ -110,17 +132,6 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 
           //int nCaloTaus = caloTaus.size();
           //cout << "calotau collection size " << nCaloTaus << endl;
-
-	  vector<TLorentzVector> mcTaus = ::visibleTaus(iEvent,0);//37);
-////	  if(mcTaus.size() == 0) mcTaus = ::visibleTaus(iEvent,23);
-//cout << "mcTaus size() " << mcTaus.size() << endl;
-          double matchingConeSize         = 0.1,
-                 signalConeSize           = 0.07,
-                 isolationConeSize        = 0.4,
-                 ptLeadingTrackMin        = 20,
-                 ptOtherTracksMin         = 1;
-          string metric = "DR"; // can be DR,angle,area
-          unsigned int isolationAnnulus_Tracksmaxn = 0;
 
           CaloTauCollection::const_iterator iTau;
           for(iTau = caloTaus.begin(); iTau != caloTaus.end(); iTau++){
@@ -187,6 +198,60 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 		}
           }
         }
+
+// PFTau
+
+        Handle<PFTauCollection> thePFTauHandle;
+        iEvent.getByLabel("fixedConePFTauProducer",thePFTauHandle);
+
+        if(thePFTauHandle.isValid()){
+
+          const PFTauCollection & pfTaus = *(thePFTauHandle.product());
+
+          //int nPFTaus = pfTaus.size();
+          //cout << "pftau collection size " << nPFTaus << endl;
+
+          PFTauCollection::const_iterator iTau;
+          for(iTau = pfTaus.begin(); iTau != pfTaus.end(); iTau++){
+                if(!iTau->leadTrack()) continue;
+
+                PFTau theCaloTau = *iTau;
+                PFTauElementsOperators op(theCaloTau);
+                double d_trackIsolation = op.discriminatorByIsolTracksN(
+                                metric,
+                                matchingConeSize,
+                                ptLeadingTrackMin,
+                                ptOtherTracksMin,
+                                metric,
+                                signalConeSize,
+                                metric,
+                                isolationConeSize,
+                                isolationAnnulus_Tracksmaxn);
+                if(d_trackIsolation == 0) continue;
+
+                const TrackRef leadingTrack =op.leadTk(metric,matchingConeSize,ptLeadingTrackMin);
+                if(leadingTrack.isNull()) continue;
+
+                const TrackRefVector signalTracks = op.tracksInCone(leadingTrack->momentum(),metric,signalConeSize,ptOtherTracksMin);
+                if(!prongSelection(signalTracks.size())) continue;
+
+                double MC_Et = 0;
+                vector<TLorentzVector>::const_iterator i;
+                for(i = mcTaus.begin(); i!= mcTaus.end(); ++i){
+                        XYZVector direction(i->Px(),i->Py(),i->Pz());
+                        double DR = ROOT::Math::VectorUtil::DeltaR(direction,iTau->momentum());
+                        if(DR < 0.5) MC_Et = i->Pt();
+                }
+
+                if(MC_Et > 0){
+                        double pfTau_dEt = (iTau->pt() - MC_Et)/MC_Et;
+                        h_PFTau_dEt->Fill(pfTau_dEt);
+
+                        pfAll++;
+                        if(fabs(pfTau_dEt) < 0.1) pfTauIn01Counter++;
+                }
+          }
+        }
 }
 
 void TCTauCorrectorTest::endJob(){
@@ -198,6 +263,7 @@ void TCTauCorrectorTest::endJob(){
 	h_CaloTau_TCTauCorrected_dEt->Write();
 	h_CaloTau_caloTauCorrected_dEt->Write();
 	h_CaloTau_dEt->Write();
+	h_PFTau_dEt->Write();
 
 	oFILE->Close();
 /*

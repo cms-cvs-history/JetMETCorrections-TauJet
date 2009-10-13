@@ -5,7 +5,7 @@ void tcTauCorrectorPlot(){
 	TCanvas* tctau = new TCanvas("tctau","",500,500);
 	tctau->SetFrameFillColor(0);
 	tctau->SetFillColor(0);
-	tctau->Divide(2,2);
+	tctau->Divide(3,2);
 
 	tctau->cd(1);
 	gPad->SetFrameFillColor(0);
@@ -40,6 +40,15 @@ void tcTauCorrectorPlot(){
 	h_CaloTau_doubleCorrected_dEt->GetXaxis()->SetTitle("(Et(RECO)-Et(MC))/Et(MC)");
 	h_CaloTau_doubleCorrected_dEt->Draw();
         tex = new TLatex(-0.90,1.086937,"CaloTau+TauJet+TCTau corr");
+        tex->SetLineWidth(2);
+        tex->Draw();
+
+        tctau->cd(6);
+        gPad->SetFrameFillColor(0);
+        h_PFTau_dEt->Scale(1/h_PFTau_dEt->GetMaximum());
+        h_PFTau_dEt->GetXaxis()->SetTitle("(Et(RECO)-Et(MC))/Et(MC)");
+        h_PFTau_dEt->Draw();
+        tex = new TLatex(-0.90,1.086937,"PFTau");
         tex->SetLineWidth(2);
         tex->Draw();
 }
