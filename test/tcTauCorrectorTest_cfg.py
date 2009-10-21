@@ -31,8 +31,6 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
 process.load("TrackingTools.TrackAssociator.default_cfi")
 
-#import TrackingTools.TrackAssociator.default_cfi as TrackAssociator
-
 process.tcTauCorrectorTest = cms.EDAnalyzer("TCTauCorrectorTest",
 	## Optional input for the TCTauAlgorithm
         ## uncomment here any line which needs changing.
@@ -55,34 +53,7 @@ process.tcTauCorrectorTest = cms.EDAnalyzer("TCTauCorrectorTest",
 	# HBHERecHitCollection	= cms.untracked.InputTag("hbhereco"),
 	# HORecHitCollection	= cms.untracked.InputTag("horeco"),
 	# HFRecHitCollection	= cms.untracked.InputTag("hfreco"),
-#	TrackAssociator.TrackAssociatorParameterBlock,
-	TrackAssociatorParameters = cms.PSet(
-      		muonMaxDistanceSigmaX = cms.double(0.0),
-      		muonMaxDistanceSigmaY = cms.double(0.0),
-      		CSCSegmentCollectionLabel = cms.InputTag("cscSegments"),
-      		dRHcal = cms.double(9999.0),
-      		dREcal = cms.double(9999.0),
-      		CaloTowerCollectionLabel = cms.InputTag("towerMaker"),
-      		useEcal = cms.bool(True),
-      		dREcalPreselection = cms.double(0.05),
-      		HORecHitCollectionLabel = cms.InputTag("horeco"),
-      		dRMuon = cms.double(9999.0),
-      		crossedEnergyType = cms.string('SinglePointAlongTrajectory'),
-      		muonMaxDistanceX = cms.double(5.0),
-      		muonMaxDistanceY = cms.double(5.0),
-      		useHO = cms.bool(False),
-      		accountForTrajectoryChangeCalo = cms.bool(False),
-      		DTRecSegment4DCollectionLabel = cms.InputTag("dt4DSegments"),
-      		EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-      		dRHcalPreselection = cms.double(0.2),
-      		useMuon = cms.bool(False),
-      		useCalo = cms.bool(True),
-      		EBRecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-      		dRMuonPreselection = cms.double(0.2),
-      		truthMatch = cms.bool(False),
-      		HBHERecHitCollectionLabel = cms.InputTag("hbhereco"),
-      		useHcal = cms.bool(False)
-	),
+	TrackAssociatorParameters = process.TrackAssociatorParameterBlock.TrackAssociatorParameters,
 
 
         ## for the test program: ProngSelection = "1prong","3prong","any" (any = 1 or 3 prong)
