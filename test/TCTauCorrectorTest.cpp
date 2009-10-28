@@ -45,6 +45,8 @@ class TCTauCorrectorTest : public edm::EDAnalyzer {
 	TH1F* h_CaloTau_caloTauCorrected_dEt;
 	TH1F* h_CaloTau_TCTauCorrected_dEt;
 	TH1F* h_CaloTau_doubleCorrected_dEt;
+	TH1F* h_CaloTau_jptCorrected_dEt;
+	TH1F* h_CaloTau_jptTCTauCorrected_dEt;
 	TH1F* h_PFTau_dEt;
 
 	int all,
@@ -52,6 +54,8 @@ class TCTauCorrectorTest : public edm::EDAnalyzer {
 	    caloTauTauJetCorrectedIn01Counter,
 	    tcTauIn01Counter,
 	    doubleCorrectedIn01Counter,
+	    jptTauIn01Counter,
+	    jptTCTauCorrectedIn01Counter,
 	    pfAll,
 	    pfTauIn01Counter;
 	int prongs;
@@ -69,6 +73,8 @@ TCTauCorrectorTest::TCTauCorrectorTest(const edm::ParameterSet& iConfig){
 	caloTauTauJetCorrectedIn01Counter = 0;
 	tcTauIn01Counter                  = 0;
 	doubleCorrectedIn01Counter        = 0;
+	jptTauIn01Counter		  = 0;
+	jptTCTauCorrectedIn01Counter	  = 0;
 	pfAll				  = 0;
 	pfTauIn01Counter	          = 0;
 
@@ -91,6 +97,8 @@ TCTauCorrectorTest::~TCTauCorrectorTest(){
         cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJetCorrection " << double(caloTauTauJetCorrectedIn01Counter)/all << endl;
 	cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TCTauCorrection  " << double(tcTauIn01Counter)/all << endl;
         cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJet+TCTau     " << double(doubleCorrectedIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+JPTCorrection    " << double(jptTauIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+JPT+TCTau        " << double(jptTCTauCorrectedIn01Counter)/all << endl;
 	cout << "Fraction of jets in abs(dEt) < 0.1, reco::PFTau                    " << double(pfTauIn01Counter)/pfAll << endl;
         cout << endl;
 
@@ -98,11 +106,13 @@ TCTauCorrectorTest::~TCTauCorrectorTest(){
 }
 
 void TCTauCorrectorTest::beginJob(const edm::EventSetup& iSetup){
-	h_CaloTau_dEt                  = new TH1F("h_CaloTau_dEt","",100,-1.0,1.0);
-	h_CaloTau_caloTauCorrected_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_caloTauCorrected_dEt");
-	h_CaloTau_TCTauCorrected_dEt   = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_TCTauCorrected_dEt");
-	h_CaloTau_doubleCorrected_dEt  = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_doubleCorrected_dEt");
-	h_PFTau_dEt                    = (TH1F*)h_CaloTau_dEt->Clone("h_PFTau_dEt");
+	h_CaloTau_dEt                   = new TH1F("h_CaloTau_dEt","",100,-1.0,1.0);
+	h_CaloTau_caloTauCorrected_dEt  = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_caloTauCorrected_dEt");
+	h_CaloTau_TCTauCorrected_dEt    = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_TCTauCorrected_dEt");
+	h_CaloTau_doubleCorrected_dEt   = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_doubleCorrected_dEt");
+	h_CaloTau_jptCorrected_dEt      = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_jptCorrected_dEt");
+	h_CaloTau_jptTCTauCorrected_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_jptTCTauCorrected_dEt");
+	h_PFTau_dEt                     = (TH1F*)h_CaloTau_dEt->Clone("h_PFTau_dEt");
 }
 
 void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
@@ -128,10 +138,17 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 
         if(theCaloTauHandle.isValid()){
 
-          const CaloTauCollection & caloTaus = *(theCaloTauHandle.product());
+	  const CaloTauCollection & caloTaus = *(theCaloTauHandle.product());
+	  //int nCaloTaus = caloTaus.size();
+	  //cout << "calotau collection size " << nCaloTaus << endl;
 
-          //int nCaloTaus = caloTaus.size();
-          //cout << "calotau collection size " << nCaloTaus << endl;
+	  // for JPT
+	  edm::Handle<CaloJetCollection> zspjets;
+	  iEvent.getByLabel(InputTag("ZSPJetCorJetIcone5"), zspjets);
+
+	  string jpt = "JetPlusTrackZSPCorrectorIcone5";
+	  const JetCorrector* correctorJPT = JetCorrector::getJetCorrector (jpt, iSetup);
+	  //
 
           CaloTauCollection::const_iterator iTau;
           for(iTau = caloTaus.begin(); iTau != caloTaus.end(); iTau++){
@@ -160,7 +177,8 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
 		double tcTauCorrection = tcTauCorrector->correction(theCaloTau);
-		cout << "CaloTau Et = " << iTau->pt() << ", corrected Et = " << iTau->pt()*tcTauCorrection << endl;
+		cout << "CaloTau Et = " << iTau->pt() << endl;
+		cout << "TCTau corrected Et = " << iTau->pt()*tcTauCorrection << endl;
 
 		double MC_Et = 0;
 		vector<TLorentzVector>::const_iterator i;
@@ -172,29 +190,57 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	        // Using TauJet Jet energy correction AND TCTau correction
 	        double tauJetCorrection = tauJetCorrector->correction(iTau->p4());
-		theCaloTau.setP4(iTau->p4()*tauJetCorrection);
+		CaloTau tauJetCorrected = theCaloTau;
+		tauJetCorrected.setP4(iTau->p4()*tauJetCorrection);
 
-		double doubleCorrection = tcTauCorrector->correction(theCaloTau);
-                cout << "CaloTau+TauJet Et = " << theCaloTau.pt() << ", doublecorrected Et = " << theCaloTau.pt()*doubleCorrection << endl;
+		double doubleCorrection = tcTauCorrector->correction(tauJetCorrected);
+                cout << "CaloTau+TauJet Et = " << tauJetCorrected.pt() << endl;
+		cout << "CaloTau+TauJet+TCTau Et = " << tauJetCorrected.pt()*doubleCorrection << endl;
+
+		// JPT
+		CLHEP::HepLorentzVector cjetc(iTau->px(), iTau->py(), iTau->pz(), iTau->energy());
+	        CaloJetCollection::const_iterator zspjet;
+         	for( zspjet = zspjets->begin();
+                     zspjet != zspjets->end(); ++zspjet ){
+           		CLHEP::HepLorentzVector zspjetc(zspjet->px(), zspjet->py(), zspjet->pz(), zspjet->energy());
+           		double dr = zspjetc.deltaR(cjetc);
+           		if(dr < 0.001) break;
+         	}
+
+		double jptCorrection = correctorJPT->correction (*zspjet,iEvent,iSetup);
+		CaloTau jptCorrected = theCaloTau;
+		jptCorrected.setP4(iTau->p4()*jptCorrection);
+
+                double jptTCTauCorrection = tcTauCorrector->correction(jptCorrected);
+                cout << "CaloTau+JPT Et = " << jptCorrected.pt() << endl;
+		cout << "CaloTau+JPT+TCTau Et = " << jptCorrected.pt()*jptTCTauCorrection << endl;
 
 		if(MC_Et > 0){
 			double caloTau_dEt = (iTau->pt() - MC_Et)/MC_Et;
 			h_CaloTau_dEt->Fill(caloTau_dEt);
 
-			double caloTau_TauJetCorrected_dEt = (iTau->pt()*tauJetCorrection - MC_Et)/MC_Et;
+			double caloTau_TauJetCorrected_dEt = (tauJetCorrected.pt() - MC_Et)/MC_Et;
 			h_CaloTau_caloTauCorrected_dEt->Fill(caloTau_TauJetCorrected_dEt);
 
 			double caloTau_TCTauCorrected_dEt = (iTau->pt()*tcTauCorrection - MC_Et)/MC_Et;
 			h_CaloTau_TCTauCorrected_dEt->Fill(caloTau_TCTauCorrected_dEt);
 
-			double caloTau_DoubleCorrected_dEt = (theCaloTau.pt()*doubleCorrection - MC_Et)/MC_Et;
+			double caloTau_DoubleCorrected_dEt = (tauJetCorrected.pt()*doubleCorrection - MC_Et)/MC_Et;
 			h_CaloTau_doubleCorrected_dEt->Fill(caloTau_DoubleCorrected_dEt);
+
+			double caloTau_jptCorrected_dEt = (jptCorrected.pt() - MC_Et)/MC_Et;
+			h_CaloTau_jptCorrected_dEt->Fill(caloTau_jptCorrected_dEt);
+
+			double caloTau_jptTCTauCorrected_dEt = (jptCorrected.pt()*jptTCTauCorrection - MC_Et)/MC_Et;
+			h_CaloTau_jptTCTauCorrected_dEt->Fill(caloTau_jptTCTauCorrected_dEt);
 
 			all++;
 			if(fabs(caloTau_dEt) < 0.1) caloTauIn01Counter++;
 			if(fabs(caloTau_TauJetCorrected_dEt) < 0.1) caloTauTauJetCorrectedIn01Counter++;
 			if(fabs(caloTau_TCTauCorrected_dEt) < 0.1) tcTauIn01Counter++;
 			if(fabs(caloTau_DoubleCorrected_dEt) < 0.1) doubleCorrectedIn01Counter++;
+			if(fabs(caloTau_jptCorrected_dEt) < 0.1) jptTauIn01Counter++;
+			if(fabs(caloTau_jptTCTauCorrected_dEt) < 0.1) jptTCTauCorrectedIn01Counter++;
 		}
           }
         }
@@ -259,6 +305,8 @@ void TCTauCorrectorTest::endJob(){
 	
 	oFILE->cd();
 
+	h_CaloTau_jptTCTauCorrected_dEt->Write();
+	h_CaloTau_jptCorrected_dEt->Write();
 	h_CaloTau_doubleCorrected_dEt->Write();
 	h_CaloTau_TCTauCorrected_dEt->Write();
 	h_CaloTau_caloTauCorrected_dEt->Write();
@@ -266,79 +314,6 @@ void TCTauCorrectorTest::endJob(){
 	h_PFTau_dEt->Write();
 
 	oFILE->Close();
-/*
-	TCanvas* resolution = new TCanvas("resolution","",500,500);
-	resolution->SetFillColor(0);
-
-        resolution->cd();
-
-        h_CaloTau_doubleCorrected_dEt->SetFillColor(2);
-        h_CaloTau_doubleCorrected_dEt->SetLineWidth(3);
-	h_CaloTau_doubleCorrected_dEt->SetStats(0);
-	h_CaloTau_doubleCorrected_dEt->GetXaxis()->SetTitle("(E_{T} - E_{T}(MC))/E_{T}(MC)");
-        h_CaloTau_doubleCorrected_dEt->GetYaxis()->SetTitle("Arbitrary units");
-        h_CaloTau_doubleCorrected_dEt->DrawClone();
-
-        h_CaloTau_TCTauCorrected_dEt->SetFillColor(5);
-        h_CaloTau_TCTauCorrected_dEt->SetLineWidth(3);
-        h_CaloTau_TCTauCorrected_dEt->DrawClone("same");
-
-        h_CaloTau_doubleCorrected_dEt->SetFillColor(0);
-        h_CaloTau_doubleCorrected_dEt->SetLineWidth(1);
-        h_CaloTau_doubleCorrected_dEt->DrawClone("same");
-
-
-        h_CaloTau_caloTauCorrected_dEt->SetLineStyle(3);
-        h_CaloTau_caloTauCorrected_dEt->SetLineWidth(3);
-        h_CaloTau_caloTauCorrected_dEt->DrawClone("same");
-
-
-        h_CaloTau_dEt->SetLineStyle(2);
-        h_CaloTau_dEt->SetLineWidth(3);
-        h_CaloTau_dEt->DrawClone("same");
-
-        double text_y1 = h_CaloTau_doubleCorrected_dEt->GetMaximum();
-        TLatex* text1_1 = new TLatex(-0.8,0.8*text_y1,"reco::CaloTau");
-	text1_1->SetTextSize(0.03);
-        text1_1->Draw();
-        TLatex* text1_2 = new TLatex(-0.8,0.7*text_y1,"reco::CaloTau+TauJet");
-        text1_2->SetTextSize(0.03);
-        text1_2->Draw();
-        TLatex* text1_3 = new TLatex(-0.8,0.6*text_y1,"TCTau");
-        text1_3->SetTextSize(0.03);
-        text1_3->Draw();
-        TLatex* text1_4 = new TLatex(-0.8,0.5*text_y1,"TCTau+TauJet");
-        text1_4->SetTextSize(0.03);
-        text1_4->Draw();
-
-        TLine* line1_1 = new TLine(-0.92,0.82*text_y1,-0.82,0.82*text_y1);
-        line1_1->SetLineWidth(3);
-        line1_1->SetLineStyle(2);
-        line1_1->Draw();
-
-        TLine* line1_2 = new TLine(-0.92,0.72*text_y1,-0.82,0.72*text_y1);
-        line1_2->SetLineWidth(3);
-        line1_2->SetLineStyle(3);
-        line1_2->Draw();
-
-
-	TLine* line1_3 = new TLine(-0.92,0.62*text_y1,-0.82,0.62*text_y1);
-	line1_3->SetLineWidth(3);
-   	line1_3->DrawClone();
-	line1_3->SetLineColor(5);
-        line1_3->SetLineWidth(1);
-        line1_3->DrawClone();
-
-        TLine* line1_4 = new TLine(-0.92,0.52*text_y1,-0.82,0.52*text_y1);
-        line1_4->SetLineWidth(3);
-        line1_4->DrawClone();
-        line1_4->SetLineColor(2);
-        line1_4->SetLineWidth(1);
-        line1_4->DrawClone();
-
-
-	resolution->Print("resolution.C");
-*/
 }
 
 bool TCTauCorrectorTest::prongSelection(short int nTracks){

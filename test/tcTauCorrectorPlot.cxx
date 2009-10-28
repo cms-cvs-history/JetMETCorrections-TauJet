@@ -2,10 +2,10 @@ void tcTauCorrectorPlot(){
 
 	TFile* inFILE = TFile::Open("histograms.root");
 
-	TCanvas* tctau = new TCanvas("tctau","",500,500);
+	TCanvas* tctau = new TCanvas("tctau","",700,500);
 	tctau->SetFrameFillColor(0);
 	tctau->SetFillColor(0);
-	tctau->Divide(3,2);
+	tctau->Divide(4,2);
 
 	tctau->cd(1);
 	gPad->SetFrameFillColor(0);
@@ -43,7 +43,25 @@ void tcTauCorrectorPlot(){
         tex->SetLineWidth(2);
         tex->Draw();
 
+        tctau->cd(5);
+        gPad->SetFrameFillColor(0);
+	h_CaloTau_jptCorrected_dEt->Scale(1/h_CaloTau_jptCorrected_dEt->GetMaximum());
+	h_CaloTau_jptCorrected_dEt->GetXaxis()->SetTitle("(Et(RECO)-Et(MC))/Et(MC)");
+	h_CaloTau_jptCorrected_dEt->Draw();
+        tex = new TLatex(-0.90,1.086937,"CaloTau+JPT corr");
+        tex->SetLineWidth(2);
+        tex->Draw();
+
         tctau->cd(6);
+        gPad->SetFrameFillColor(0);
+	h_CaloTau_jptTCTauCorrected_dEt->Scale(1/h_CaloTau_jptTCTauCorrected_dEt->GetMaximum());
+	h_CaloTau_jptTCTauCorrected_dEt->GetXaxis()->SetTitle("(Et(RECO)-Et(MC))/Et(MC)");
+	h_CaloTau_jptTCTauCorrected_dEt->Draw();
+	tex = new TLatex(-0.90,1.086937,"CaloTau+JPT+TCTau corr");
+        tex->SetLineWidth(2);
+        tex->Draw();
+
+        tctau->cd(8);
         gPad->SetFrameFillColor(0);
         h_PFTau_dEt->Scale(1/h_PFTau_dEt->GetMaximum());
         h_PFTau_dEt->GetXaxis()->SetTitle("(Et(RECO)-Et(MC))/Et(MC)");
