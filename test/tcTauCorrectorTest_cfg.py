@@ -22,6 +22,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'STARTUP31X_V1::All'
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
@@ -30,6 +31,9 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
 process.load("TrackingTools.TrackAssociator.default_cfi")
+
+process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
 
 process.tcTauCorrectorTest = cms.EDAnalyzer("TCTauCorrectorTest",
 	## Optional input for the TCTauAlgorithm
@@ -65,5 +69,8 @@ process.tcTauCorrectorTest = cms.EDAnalyzer("TCTauCorrectorTest",
 )
 
 process.runEDAna = cms.Path(
+        process.ZSPJetCorrections *
+        process.ZSPrecoJetAssociations *
+        process.JetPlusTrackCorrections *
 	process.tcTauCorrectorTest
 )
