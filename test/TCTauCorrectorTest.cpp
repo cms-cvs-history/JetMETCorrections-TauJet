@@ -120,7 +120,7 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
         double matchingConeSize         = 0.1,
                signalConeSize           = 0.07,
                isolationConeSize        = 0.4,
-               ptLeadingTrackMin        = 20,
+               ptLeadingTrackMin        = 6,
                ptOtherTracksMin         = 1;
         string metric = "DR"; // can be DR,angle,area
         unsigned int isolationAnnulus_Tracksmaxn = 0;
