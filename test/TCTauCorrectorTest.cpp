@@ -48,6 +48,7 @@ class TCTauCorrectorTest : public edm::EDAnalyzer {
 	TH1F* h_CaloTau_jptCorrected_dEt;
 	TH1F* h_CaloTau_jptTCTauCorrected_dEt;
 	TH1F* h_PFTau_dEt;
+	TH1F* h_counters;
 
 	int all,
 	    caloTauIn01Counter,
@@ -102,6 +103,35 @@ TCTauCorrectorTest::~TCTauCorrectorTest(){
 	cout << "Fraction of jets in abs(dEt) < 0.1, reco::PFTau                    " << double(pfTauIn01Counter)/pfAll << endl;
         cout << endl;
 
+        h_counters->SetBinContent(1,tcTauCorrector->allTauCandidates());
+        h_counters->SetBinContent(2,tcTauCorrector->statistics());
+        h_counters->SetBinContent(4,double(all));
+        h_counters->SetBinContent(5,caloTauIn01Counter);
+        h_counters->SetBinContent(6,caloTauTauJetCorrectedIn01Counter);
+        h_counters->SetBinContent(7,tcTauIn01Counter);
+        h_counters->SetBinContent(8,doubleCorrectedIn01Counter);
+        h_counters->SetBinContent(9,jptTauIn01Counter);
+        h_counters->SetBinContent(10,jptTCTauCorrectedIn01Counter);
+        h_counters->SetBinContent(11,pfAll);
+        h_counters->SetBinContent(12,pfTauIn01Counter);
+
+
+        TFile* oFILE = new TFile("histograms.root","RECREATE");
+
+        oFILE->cd();
+
+        h_CaloTau_jptTCTauCorrected_dEt->Write();
+        h_CaloTau_jptCorrected_dEt->Write();
+        h_CaloTau_doubleCorrected_dEt->Write();
+        h_CaloTau_TCTauCorrected_dEt->Write();
+        h_CaloTau_caloTauCorrected_dEt->Write();
+        h_CaloTau_dEt->Write();
+        h_PFTau_dEt->Write();
+
+        h_counters->Write();
+
+        oFILE->Close();
+
 	delete tcTauCorrector;
 }
 
@@ -113,6 +143,8 @@ void TCTauCorrectorTest::beginJob(const edm::EventSetup& iSetup){
 	h_CaloTau_jptCorrected_dEt      = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_jptCorrected_dEt");
 	h_CaloTau_jptTCTauCorrected_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_jptTCTauCorrected_dEt");
 	h_PFTau_dEt                     = (TH1F*)h_CaloTau_dEt->Clone("h_PFTau_dEt");
+
+	h_counters = new TH1F("h_counters","",12,0,12);
 }
 
 void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
@@ -301,19 +333,6 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 void TCTauCorrectorTest::endJob(){
-	TFile* oFILE = new TFile("histograms.root","RECREATE");
-	
-	oFILE->cd();
-
-	h_CaloTau_jptTCTauCorrected_dEt->Write();
-	h_CaloTau_jptCorrected_dEt->Write();
-	h_CaloTau_doubleCorrected_dEt->Write();
-	h_CaloTau_TCTauCorrected_dEt->Write();
-	h_CaloTau_caloTauCorrected_dEt->Write();
-	h_CaloTau_dEt->Write();
-	h_PFTau_dEt->Write();
-
-	oFILE->Close();
 }
 
 bool TCTauCorrectorTest::prongSelection(short int nTracks){

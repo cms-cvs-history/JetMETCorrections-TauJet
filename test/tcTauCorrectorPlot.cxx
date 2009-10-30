@@ -69,4 +69,35 @@ void tcTauCorrectorPlot(){
         tex = new TLatex(-0.90,1.086937,"PFTau");
         tex->SetLineWidth(2);
         tex->Draw();
+
+	//
+
+	int allTauCandidates 				= h_counters->GetBinContent(1),
+		statistics				= h_counters->GetBinContent(2),
+		all					= h_counters->GetBinContent(4),
+		caloTauIn01Counter			= h_counters->GetBinContent(5),
+		caloTauTauJetCorrectedIn01Counter	= h_counters->GetBinContent(6),
+		tcTauIn01Counter			= h_counters->GetBinContent(7),
+		doubleCorrectedIn01Counter		= h_counters->GetBinContent(8),
+		jptTauIn01Counter			= h_counters->GetBinContent(9),
+		jptTCTauCorrectedIn01Counter		= h_counters->GetBinContent(10),
+		pfAll					= h_counters->GetBinContent(11),
+		pfTauIn01Counter			= h_counters->GetBinContent(12);
+
+        cout << endl << endl;
+        cout << "All tau candidates               " << allTauCandidates << endl;
+        cout << "Number of taus passing selection " << statistics << endl;
+        double efficiency = 0;
+	if(allTauCandidates > 0) efficiency = double(statistics)/allTauCandidates;
+        cout << "Algorithm efficiency             " << efficiency << endl;
+
+        cout << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau                  " << double(caloTauIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJetCorrection " << double(caloTauTauJetCorrectedIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TCTauCorrection  " << double(tcTauIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+TauJet+TCTau     " << double(doubleCorrectedIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+JPTCorrection    " << double(jptTauIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::CaloTau+JPT+TCTau        " << double(jptTCTauCorrectedIn01Counter)/all << endl;
+        cout << "Fraction of jets in abs(dEt) < 0.1, reco::PFTau                    " << double(pfTauIn01Counter)/pfAll << endl;
+        cout << endl;
 }
