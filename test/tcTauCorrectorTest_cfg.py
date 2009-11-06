@@ -65,7 +65,9 @@ process.tcTauCorrectorTest = cms.EDAnalyzer("TCTauCorrectorTest",
         ## for the test program: TauJet jet energy correction parameters
         src            = cms.InputTag("iterativeCone5CaloJets"),
         tagName        = cms.string("IterativeCone0.4_EtScheme_TowerEt0.5_E0.8_Jets871_2x1033PU_tau"),
-        TauTriggerType = cms.int32(1)
+        TauTriggerType = cms.int32(1),
+	TauJetEt       = cms.double(20.),
+        TauJetEta      = cms.double(2.1)
 )
 
 process.runEDAna = cms.Path(

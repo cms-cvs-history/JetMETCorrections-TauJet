@@ -60,6 +60,7 @@ class TCTauCorrectorTest : public edm::EDAnalyzer {
 	    pfAll,
 	    pfTauIn01Counter;
 	int prongs;
+	double tauEtCut,tauEtaCut;
 };
 
 TCTauCorrectorTest::TCTauCorrectorTest(const edm::ParameterSet& iConfig){
@@ -84,6 +85,8 @@ TCTauCorrectorTest::TCTauCorrectorTest(const edm::ParameterSet& iConfig){
         if(prongSele == "1prong") prongs = 1;
         if(prongSele == "3prong") prongs = 3;
 
+	tauEtCut  = iConfig.getParameter<double>("TauJetEt");
+	tauEtaCut = iConfig.getParameter<double>("TauJetEta");
 }
 
 TCTauCorrectorTest::~TCTauCorrectorTest(){
@@ -185,6 +188,8 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
           CaloTauCollection::const_iterator iTau;
           for(iTau = caloTaus.begin(); iTau != caloTaus.end(); iTau++){
                 if(!iTau->leadTrack()) continue;
+
+		if(iTau->pt() < tauEtCut || fabs(iTau->eta()) > tauEtaCut) continue;
 
 		CaloTau theCaloTau = *iTau;
 		CaloTauElementsOperators op(theCaloTau);
