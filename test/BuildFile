@@ -7,3 +7,8 @@
   <use name=FWCore/Framework>
   <use name=JetMETCorrections/TauJet>
 </library>
+
+<library file=TCTauAnalysis.cpp name=TCTauAnalysis>
+  <use name=FWCore/Framework>
+  <use name=JetMETCorrections/TauJet>
+</library>
