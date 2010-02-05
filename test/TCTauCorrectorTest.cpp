@@ -33,7 +33,7 @@ class TCTauCorrectorTest : public edm::EDAnalyzer {
   	~TCTauCorrectorTest();
 
   	virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  	virtual void beginJob(const edm::EventSetup& );
+  	virtual void beginJob();
   	virtual void endJob();
   private:
 	bool prongSelection(short int);
@@ -138,7 +138,7 @@ TCTauCorrectorTest::~TCTauCorrectorTest(){
 	delete tcTauCorrector;
 }
 
-void TCTauCorrectorTest::beginJob(const edm::EventSetup& iSetup){
+void TCTauCorrectorTest::beginJob(){
 	h_CaloTau_dEt                   = new TH1F("h_CaloTau_dEt","",100,-1.0,1.0);
 	h_CaloTau_caloTauCorrected_dEt  = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_caloTauCorrected_dEt");
 	h_CaloTau_TCTauCorrected_dEt    = (TH1F*)h_CaloTau_dEt->Clone("h_CaloTau_TCTauCorrected_dEt");
