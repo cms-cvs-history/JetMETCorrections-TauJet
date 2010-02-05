@@ -39,7 +39,7 @@ class TCTauCorrectorTest : public edm::EDAnalyzer {
 	bool prongSelection(short int);
 
 	TCTauCorrector* tcTauCorrector;
-	TauJetCorrector* tauJetCorrector;
+  	TauJetCorrector* tauJetCorrector;
 
 	TH1F* h_CaloTau_dEt;
 	TH1F* h_CaloTau_caloTauCorrected_dEt;
@@ -231,8 +231,8 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 		tauJetCorrected.setP4(iTau->p4()*tauJetCorrection);
 
 		double doubleCorrection = tcTauCorrector->correction(tauJetCorrected);
-                cout << "CaloTau+TauJet Et = " << tauJetCorrected.pt() << endl;
-		cout << "CaloTau+TauJet+TCTau Et = " << tauJetCorrected.pt()*doubleCorrection << endl;
+                //cout << "CaloTau+TauJet Et = " << tauJetCorrected.pt() << endl;
+		//cout << "CaloTau+TauJet+TCTau Et = " << tauJetCorrected.pt()*doubleCorrection << endl;
 
 		// JPT
 		CLHEP::HepLorentzVector cjetc(iTau->px(), iTau->py(), iTau->pz(), iTau->energy());
