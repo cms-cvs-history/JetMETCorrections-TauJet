@@ -213,9 +213,10 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
  
 
 
-		double tcTauCorrection = tcTauCorrector->correction(theCaloTau);
+		CaloTau tcTauCorrected = theCaloTau;
+		tcTauCorrected.setP4(tcTauCorrector->correctedP4(theCaloTau));
 		cout << "CaloTau Et = " << iTau->pt() << endl;
-		cout << "TCTau corrected Et = " << iTau->pt()*tcTauCorrection << endl;
+		cout << "TCTau corrected Et = " << tcTauCorrected.pt() << endl;
 
 		double MC_Et = 0;
 		vector<TLorentzVector>::const_iterator i;
@@ -229,10 +230,11 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 	        double tauJetCorrection = tauJetCorrector->correction(iTau->p4());
 		CaloTau tauJetCorrected = theCaloTau;
 		tauJetCorrected.setP4(iTau->p4()*tauJetCorrection);
+		cout << "CaloTau+TauJet Et = " << tauJetCorrected.pt() << endl;
 
-		double doubleCorrection = tcTauCorrector->correction(tauJetCorrected);
-                //cout << "CaloTau+TauJet Et = " << tauJetCorrected.pt() << endl;
-		//cout << "CaloTau+TauJet+TCTau Et = " << tauJetCorrected.pt()*doubleCorrection << endl;
+		CaloTau tcTauTauJetCorrected = tauJetCorrected;
+		tcTauTauJetCorrected.setP4(tcTauCorrector->correctedP4(tauJetCorrected));
+		cout << "CaloTau+TauJet+TCTau Et = " << tcTauTauJetCorrected.pt() << endl;
 
 		// JPT
 		CLHEP::HepLorentzVector cjetc(iTau->px(), iTau->py(), iTau->pz(), iTau->energy());
@@ -247,10 +249,12 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 		double jptCorrection = correctorJPT->correction (*zspjet,iEvent,iSetup);
 		CaloTau jptCorrected = theCaloTau;
 		jptCorrected.setP4(iTau->p4()*jptCorrection);
+		cout << "CaloTau+JPT Et = " << jptCorrected.pt() << endl;
 
-                double jptTCTauCorrection = tcTauCorrector->correction(jptCorrected);
-                cout << "CaloTau+JPT Et = " << jptCorrected.pt() << endl;
-		cout << "CaloTau+JPT+TCTau Et = " << jptCorrected.pt()*jptTCTauCorrection << endl;
+                CaloTau jptTCTauCorrected = jptCorrected;
+		jptTCTauCorrected.setP4(tcTauCorrector->correctedP4(jptCorrected));
+
+		cout << "CaloTau+JPT+TCTau Et = " << jptTCTauCorrected.pt() << endl;
 
 		if(MC_Et > 0){
 			double caloTau_dEt = (iTau->pt() - MC_Et)/MC_Et;
@@ -259,16 +263,16 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 			double caloTau_TauJetCorrected_dEt = (tauJetCorrected.pt() - MC_Et)/MC_Et;
 			h_CaloTau_caloTauCorrected_dEt->Fill(caloTau_TauJetCorrected_dEt);
 
-			double caloTau_TCTauCorrected_dEt = (iTau->pt()*tcTauCorrection - MC_Et)/MC_Et;
+			double caloTau_TCTauCorrected_dEt = (tcTauCorrected.pt() - MC_Et)/MC_Et;
 			h_CaloTau_TCTauCorrected_dEt->Fill(caloTau_TCTauCorrected_dEt);
 
-			double caloTau_DoubleCorrected_dEt = (tauJetCorrected.pt()*doubleCorrection - MC_Et)/MC_Et;
+			double caloTau_DoubleCorrected_dEt = (tcTauTauJetCorrected.pt() - MC_Et)/MC_Et;
 			h_CaloTau_doubleCorrected_dEt->Fill(caloTau_DoubleCorrected_dEt);
 
 			double caloTau_jptCorrected_dEt = (jptCorrected.pt() - MC_Et)/MC_Et;
 			h_CaloTau_jptCorrected_dEt->Fill(caloTau_jptCorrected_dEt);
 
-			double caloTau_jptTCTauCorrected_dEt = (jptCorrected.pt()*jptTCTauCorrection - MC_Et)/MC_Et;
+			double caloTau_jptTCTauCorrected_dEt = (jptTCTauCorrected.pt() - MC_Et)/MC_Et;
 			h_CaloTau_jptTCTauCorrected_dEt->Fill(caloTau_jptTCTauCorrected_dEt);
 
 			all++;

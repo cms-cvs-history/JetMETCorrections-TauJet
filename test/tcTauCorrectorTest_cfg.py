@@ -4,7 +4,7 @@ import copy
 process = cms.Process("test")
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(-1)
+        input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source("PoolSource",
