@@ -24,7 +24,7 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
 
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
-process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
 process.JPTZSPCorrectorICone5.ResponseMap = cms.string("JetMETCorrections/Configuration/data/CMSSW_31X_resptowers.txt")
 process.JPTZSPCorrectorICone5.EfficiencyMap = cms.string("JetMETCorrections/Configuration/data/CMSSW_167_TrackNonEff_one.txt")
 process.JPTZSPCorrectorICone5.LeakageMap = cms.string("JetMETCorrections/Configuration/data/CMSSW_167_TrackLeakage_one.txt")
