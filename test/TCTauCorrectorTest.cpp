@@ -25,7 +25,6 @@ using namespace std;
 #include "TLatex.h"
 #include "TLine.h"
 
-#include "JetMETCorrections/TauJet/test/visibleTaus.h"
 
 class TCTauCorrectorTest : public edm::EDAnalyzer {
   public:
@@ -61,6 +60,8 @@ class TCTauCorrectorTest : public edm::EDAnalyzer {
 	    pfTauIn01Counter;
 	int prongs;
 	double tauEtCut,tauEtaCut;
+
+        edm::InputTag MCTaus;
 };
 
 TCTauCorrectorTest::TCTauCorrectorTest(const edm::ParameterSet& iConfig){
@@ -84,6 +85,8 @@ TCTauCorrectorTest::TCTauCorrectorTest(const edm::ParameterSet& iConfig){
         prongs = -1;
         if(prongSele == "1prong") prongs = 1;
         if(prongSele == "3prong") prongs = 3;
+
+	MCTaus          = iConfig.getParameter<edm::InputTag>("MCTauCollection");
 
 	tauEtCut  = iConfig.getParameter<double>("TauJetEt");
 	tauEtaCut = iConfig.getParameter<double>("TauJetEta");
@@ -160,7 +163,8 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
         string metric = "DR"; // can be DR,angle,area
         unsigned int isolationAnnulus_Tracksmaxn = 0;
 
-	vector<TLorentzVector> mcTaus = ::visibleTaus(iEvent,0);//37);
+	edm::Handle<std::vector<math::XYZTLorentzVectorD> > mcTaus;
+        iEvent.getByLabel(MCTaus, mcTaus);
 
 // CaloTaus
 
@@ -219,13 +223,17 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
 		cout << "TCTau corrected Et = " << tcTauCorrected.pt() << endl;
 
 		double MC_Et = 0;
-		vector<TLorentzVector>::const_iterator i;
-        	for(i = mcTaus.begin(); i!= mcTaus.end(); ++i){
-			XYZVector direction(i->Px(),i->Py(),i->Pz());
-                	double DR = ROOT::Math::VectorUtil::DeltaR(direction,iTau->momentum());
-                	if(DR < 0.5) MC_Et = i->Pt();
-        	}
+		if(mcTaus.isValid()){
+		  std::vector<math::XYZTLorentzVectorD>::const_iterator i;
+		  for(i = mcTaus->begin(); i!= mcTaus->end(); ++i){
 
+		  //		vector<TLorentzVector>::const_iterator i;
+		  //for(i = mcTaus.begin(); i!= mcTaus.end(); ++i){
+		  //XYZVector direction(i->Px(),i->Py(),i->Pz());
+                	double DR = ROOT::Math::VectorUtil::DeltaR(*i,iTau->p4());
+                	if(DR < 0.5) MC_Et = i->Pt();
+        	  }
+		}
 	        // Using TauJet Jet energy correction AND TCTau correction
 	        double tauJetCorrection = tauJetCorrector->correction(iTau->p4());
 		CaloTau tauJetCorrected = theCaloTau;
@@ -323,12 +331,13 @@ void TCTauCorrectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup
                 if(!prongSelection(signalTracks.size())) continue;
 
                 double MC_Et = 0;
-                vector<TLorentzVector>::const_iterator i;
-                for(i = mcTaus.begin(); i!= mcTaus.end(); ++i){
-                        XYZVector direction(i->Px(),i->Py(),i->Pz());
-                        double DR = ROOT::Math::VectorUtil::DeltaR(direction,iTau->momentum());
-                        if(DR < 0.5) MC_Et = i->Pt();
-                }
+		if(mcTaus.isValid()){
+		  std::vector<math::XYZTLorentzVectorD>::const_iterator i;
+                  for(i = mcTaus->begin(); i!= mcTaus->end(); ++i){
+		        double DR = ROOT::Math::VectorUtil::DeltaR(*i,iTau->p4());
+		        if(DR < 0.5) MC_Et = i->Pt();
+                  }
+		}
 
                 if(MC_Et > 0){
                         double pfTau_dEt = (iTau->pt() - MC_Et)/MC_Et;

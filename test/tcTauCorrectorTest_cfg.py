@@ -35,12 +35,17 @@ from JetMETCorrections.TauJet.TauJetAlgoParameters_cfi import *
 process.tcTauCorrectorTest = cms.EDAnalyzer("TCTauCorrectorTest",
         tauJetAlgoParameters,                                    
         tcTauAlgoParameters,
-        ProngSelection = cms.string("1prong"),
-        TauJetEt = cms.double(20.),
-        TauJetEta = cms.double(2.1)                               
+        MCTauCollection = cms.InputTag("TauMCProducer:HadronicTauOneAndThreeProng"),                                    
+        ProngSelection  = cms.string("1prong"),
+        TauJetEt        = cms.double(20.),
+        TauJetEta       = cms.double(2.1)                               
 )
 
+#TauMCProducer
+process.load("HLTriggerOffline.Tau.Validation.HLTTauReferences_cfi")
+
 process.runEDAna = cms.Path(
+        process.TauMCProducer *
         process.ZSPJetCorrections *
         process.ZSPrecoJetAssociations *
         process.JetPlusTrackCorrections *
