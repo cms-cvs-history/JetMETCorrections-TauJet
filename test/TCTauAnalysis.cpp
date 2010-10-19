@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <iostream>
-using namespace std;
 
 #include "JetMETCorrections/TauJet/interface/TCTauCorrector.h"
 #include "JetMETCorrections/TauJet/interface/TauJetCorrector.h"
@@ -31,6 +30,8 @@ using namespace std;
 #include "TLine.h"
 #include "TTree.h"
 
+using namespace std;
+using namespace reco;
 
 class TCTauAnalysis : public edm::EDAnalyzer {
   public:
@@ -77,18 +78,18 @@ class TCTauAnalysis : public edm::EDAnalyzer {
                isolationConeSize,
                ptLeadingTrackMin,
 	       ptOtherTracksMin;
-        string metric;
+        std::string metric;
         unsigned int isolationAnnulus_Tracksmaxn;
 
-        Handle<CaloTauCollection>    theCaloTauHandle;
-        Handle<CaloTauDiscriminator> theCaloTauDiscriminatorHandle;
+        edm::Handle<CaloTauCollection>    theCaloTauHandle;
+        edm::Handle<CaloTauDiscriminator> theCaloTauDiscriminatorHandle;
 
-        Handle<CaloTauCollection>    theTCTauHandle;
-        Handle<CaloTauDiscriminator> theTCTauDiscriminatorHandle;
-	Handle<CaloTauDiscriminator> theTCTauAlgoHandle;
+        edm::Handle<CaloTauCollection>    theTCTauHandle;
+        edm::Handle<CaloTauDiscriminator> theTCTauDiscriminatorHandle;
+	edm::Handle<CaloTauDiscriminator> theTCTauAlgoHandle;
 
-        Handle<PFTauCollection>      thePFTauHandle;
-        Handle<PFTauDiscriminator>   thePFTauDiscriminatorHandle;
+        edm::Handle<PFTauCollection>      thePFTauHandle;
+        edm::Handle<PFTauDiscriminator>   thePFTauDiscriminatorHandle;
 };
 
 TCTauAnalysis::TCTauAnalysis(const edm::ParameterSet& iConfig){
@@ -219,15 +220,15 @@ void TCTauAnalysis::beginJob(){}
 void TCTauAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
 	iEvent.getByLabel(CaloTaus,theCaloTauHandle);
-        iEvent.getByLabel(InputTag("caloRecoTau"+Discriminator.label(),"",CaloTaus.process()),
+        iEvent.getByLabel(edm::InputTag("caloRecoTau"+Discriminator.label(),"",CaloTaus.process()),
                           theCaloTauDiscriminatorHandle);
 
         iEvent.getByLabel(TCTaus,theTCTauHandle);
-        iEvent.getByLabel(InputTag("caloRecoTau"+Discriminator.label()),
+        iEvent.getByLabel(edm::InputTag("caloRecoTau"+Discriminator.label()),
                           theTCTauDiscriminatorHandle);
 	iEvent.getByLabel("tcRecoTauDiscriminationAlgoComponent",theTCTauAlgoHandle);
 
-	string pfTau = PFTaus.label();
+	std::string pfTau = PFTaus.label();
 	pfTau = pfTau.substr(0,pfTau.find("Producer"));
         iEvent.getByLabel(PFTaus,thePFTauHandle);
 	iEvent.getByLabel(pfTau+Discriminator.label(),thePFTauDiscriminatorHandle);
